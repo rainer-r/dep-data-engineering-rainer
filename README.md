@@ -1,115 +1,166 @@
-# DEP Data Engineering Open Track: A 6-Month Project-Driven Build Journey
+# DEP Data Engineering Starter Kit
 
-> A 6-month, self-paced, project-driven learning journey. Participants build a real, deployable data project using free and open-source tools.
-
-**Cohort:** June – November 2026 &nbsp;|&nbsp; **Time:** ~5 hrs/week &nbsp;|&nbsp; **Cost:** Free
+Welcome to the **Data Engineering Pilipinas Open Track**. This folder is your project scaffold — everything you need to build one real, deployable data project over 24 weeks.
 
 ---
 
-## What You'll Build
+## Before You Start
 
-By the end of the program, every participant will have:
-
-- A **public GitHub repo** with a clean, documented data project
-- An **end-to-end data pipeline** (ingest → clean → analyze → deploy)
-- An **analysis notebook** with charts, statistics, and written insights
-- A **live deployed dashboard** (GitHub Pages)
+You need:
+- A free [GitHub account](https://github.com)
+- [Python 3.10+](https://www.python.org/downloads/) installed on your machine
+- [Git](https://git-scm.com/) installed and configured
 
 ---
 
-## Program Design
+## Step 1 — Copy This Starter Kit to Your GitHub
 
-| | |
-|-|-|
-| **Duration** | 24 weeks (~5 hours/week, ~120 hours total) |
-| **Weekly Rule** | 1 primary resource + 1 optional max; every week produces a project artifact |
-| **Design Principles** | Project-first · milestone-driven · public accountability · low-overwhelm resource curation |
-| **Resource Rule** | Prefer official docs, interactive tools, or one proven course. Avoid multiple full courses in the same week. |
-| **Tool Stack** | Free tools only: GitHub, Python, SQL, HTML. Optional tools (Tableau, etc.) are learner-driven. |
+You have two options:
 
----
+**Option A — Use This Repo as a Template (recommended)**
 
-## How to Use This Repo
+1. Go to the top of this GitHub repo and click **Use this template → Create a new repository**
+2. Name it something like `dep-data-engineering-<your-name>`
+3. Set it to **Public** (required for milestone submission)
+4. Click **Create repository**
 
-This is the **program hub** — it contains the curriculum, weekly resources, and milestone guides.
+**Option B — Fork and Copy Manually**
 
-**Builders:** Follow the phase folders in order. Each week folder has resources, tasks, and links.
+1. Fork this repo to your account
+2. In your fork, delete everything outside of `cohorts/starter-kit/` and restructure the contents as your root
 
-**Volunteers:** See [docs/VOLUNTEER_GUIDE.md](docs/VOLUNTEER_GUIDE.md) for your role and responsibilities.
+> Your repo must be **public** at all times so reviewers and the auto-checker can access it.
 
 ---
 
-## Stuck Protocol
+## Step 2 — Clone Your Repo Locally
 
-> If you have spent more than **2 hours** on one problem without progress:
->
-> 1. Write down exactly what you tried
-> 2. Post in the DEP community channel with your error message and code snippet
-> 3. Tag your moderator
->
-> **Do NOT skip ahead.** Moderators flag stuck participants for Ops Lead review within 48 hours.
-> You may not advance to the next milestone while a blocker is unresolved.
+```bash
+git clone https://github.com/<your-username>/<your-repo-name>.git
+cd <your-repo-name>
+```
 
 ---
 
-## Curriculum
+## Step 3 — Understand the Folder Structure
 
-| Phase | Weeks | Focus | Output |
-|-------|-------|-------|--------|
-| [01 — Foundations](01-foundations/) | 1–4 | Problem framing, data source discovery, GitHub + Python basics | Problem statement + first raw data pull |
-| [02 — Data Collection](02-data-collection/) | 5–6 | API fundamentals, alternate ingestion paths (scraping / manual) | Ingestion script + raw data in `/data/raw` |
-| [03 — Data Processing](03-data-processing/) | 7–12 | Storage/data modeling, SQL, Pandas cleaning, data quality, pipeline structuring | Clean, schema-defined dataset + reproducible pipeline |
-| [04 — Analysis & Insights](04-analysis-and-insights/) | 13–16 | Descriptive stats, EDA, visualization, insight writing | Insights notebook with 3–5 charts |
-| [05A — Predictive Layer](05-project-packaging/) *(Path A — conditional)* | 17–20 | Regression, classification, feature engineering, ML pipeline integration | Predictive model + evaluation metrics |
-| [05B — Non-Predictive Alt Track](05-project-packaging/) *(Path B — conditional)* | 17–20 | Advanced segmentation, KPI framework, stakeholder narrative, repo integration | Advanced analysis + stakeholder brief |
-| [06 — Deployment](06-deployment/) | 21–24 | Dashboard design + build, GitHub Pages deploy, documentation polish, presentation | Live project URL + portfolio-ready repo |
+```
+your-repo/
+├── data/
+│   ├── raw/            ← Phase 2: raw data files go here
+│   └── processed/      ← Phase 3: cleaned/transformed data goes here
+├── scripts/
+│   ├── ingest.py       ← Phase 2: your data ingestion script
+│   └── transform.py    ← Phase 3: your data transformation script
+├── notebooks/          ← Phase 4 & 5: your analysis notebooks
+├── output/
+│   └── figures/        ← Phase 4: saved charts and visuals
+├── dashboard/
+│   └── index.html      ← Phase 6: your deployed dashboard or report
+├── requirements.txt    ← list all your Python dependencies here
+└── README.md           ← this file — update it as your project grows
+```
 
----
-
-## Milestones
-
-Progress is tracked through 7 milestones (M0–M6). Each one has a clear output and a submission form.
-
-| Milestone | When | Output |
-|-----------|------|--------|
-| M0 — Problem Statement | End of Week 1 | Specific question + audience + possible data source + README in learner's own words |
-| M1 — Data Source Identified / Repo Initialized | By Week 3–4 | Working repo + chosen source + README data section complete |
-| M2 — Data Ingestion Script | By Week 6 | Raw data in `/data/raw` via API, scraping, or manual timestamped save |
-| M3 — Clean Dataset | By Week 12 | Processed dataset + schema plan + cleaning notes + validation checks |
-| M4 — Initial Insights | By Week 16 | 3–5 charts + written interpretations + one cautious inference section |
-| M5 — Public Repo / Predictive Component | By Week 20–23 | Professional repo + predictive layer (Path A) OR advanced EDA + stakeholder brief (Path B) |
-| M6 — Live Deployment | By Week 24 | Live GitHub Pages URL + presentable final project |
-
-> **Gates:** M0 and M1 are hard gates. Learners must not proceed to the next phase without moderator review and approval.
-
-Full checklist: [docs/MILESTONE_CHECKLIST.md](docs/MILESTONE_CHECKLIST.md)
+You will fill in each folder phase by phase. Do not try to fill everything at once.
 
 ---
 
-## Getting Started (Participants)
+## Step 4 — Set Up Your Python Environment
 
-1. **Join the community** — [Discord link here]
-2. **Set up your project repo** — copy the [DEP Starter Kit](cohorts/starter-kit/) scaffold into your own GitHub repo
-3. **Start Phase 1** — go to [01-foundations/](01-foundations/) and begin Week 1
+```bash
+python -m venv venv
+source venv/bin/activate        # Mac/Linux
+venv\Scripts\activate           # Windows
 
----
+pip install -r requirements.txt
+```
 
-## Tech Stack
+Add any new packages you install to `requirements.txt`:
 
-![DEP Tech Stack](docs/stack-diagram.svg)
-
----
-
-## Cohorts
-
-- [2026 Cohort](cohorts/2026/) — June–November 2026 *(current)*
+```bash
+pip freeze > requirements.txt
+```
 
 ---
 
-## For Volunteers
+## Step 5 — Work Through the Phases
 
-See [docs/VOLUNTEER_GUIDE.md](docs/VOLUNTEER_GUIDE.md) for role descriptions, responsibilities, and the operating rhythm.
+| Phase | Weeks | What you build |
+|-------|-------|----------------|
+| 1 — Foundations | 1–4 | Define your problem, find your data source, set up this repo |
+| 2 — Data Collection | 5–6 | Write `scripts/ingest.py`, pull raw data into `data/raw/` |
+| 3 — Data Processing | 7–12 | Write `scripts/transform.py`, clean and model data in `data/processed/` |
+| 4 — Analysis & Insights | 13–16 | Explore data in `notebooks/`, produce charts in `output/figures/` |
+| 5 — Predictive / Alt Track | 17–20 | Build a model (Path A) or advanced analysis (Path B) |
+| 6 — Deployment | 21–24 | Deploy `dashboard/index.html` via GitHub Pages, prepare your demo |
 
 ---
 
-*Built by Data Engineering Pilipinas. Free and open. Always.*
+## Step 6 — Submit at Each Milestone
+
+At the end of each phase, submit a milestone issue on the **curriculum repo**:
+
+1. Go to [github.com/dataengineeringpilipinas/dep-data-engineering-open-track/issues/new/choose](https://github.com/dataengineeringpilipinas/dep-data-engineering-open-track/issues/new/choose)
+2. Select the template matching your milestone (e.g. **Milestone 1 — Foundations Complete**)
+3. Fill in your name, cohort, repo URL, and **commit hash**
+
+**How to get your commit hash:**
+
+```bash
+git log --oneline -1
+# Example output: a1b2c3d feat: add ingestion script
+# Your commit hash is: a1b2c3d (or the full 40-character version)
+```
+
+Copy the full hash:
+
+```bash
+git log -1 --format="%H"
+```
+
+After you submit, the auto-checker will run and post a comment on your issue within a few minutes. Fix anything flagged before waiting for a reviewer.
+
+---
+
+## Step 7 — Enable GitHub Pages (Phase 6)
+
+To deploy your dashboard:
+
+1. In your repo, go to **Settings → Pages**
+2. Under **Source**, select **Deploy from a branch**
+3. Choose `main` branch and `/dashboard` folder
+4. Click **Save** — your live URL will appear as `https://<your-username>.github.io/<your-repo-name>/`
+
+---
+
+## Updating Your README
+
+Replace this file with your own project README as you progress. At minimum, your README should include:
+
+- What problem you are solving
+- Where your data comes from
+- How to run your scripts (`ingest.py`, `transform.py`)
+- Your key findings (Phase 4+)
+- Your live dashboard URL (Phase 6)
+
+---
+
+## Getting Help
+
+- Check the weekly READMEs in the curriculum repo for topic guides and resources
+- Post in the community Discord if you are stuck after 2 hours on a problem
+- Review `docs/FAQ.md` in the curriculum repo for common questions
+
+---
+
+## Milestone Quick Reference
+
+| Milestone | When | What reviewers check |
+|-----------|------|---------------------|
+| M0 | Week 1 | Repo is public, README describes your project |
+| M1 | Week 3–4 | Folder structure exists, requirements.txt present |
+| M2 | Week 6 | `ingest.py` runs, `data/raw/` has real data |
+| M3 | Week 12 | `transform.py` runs, `data/processed/` has output |
+| M4 | Week 16 | Notebook exists and runs end-to-end |
+| M5 | Week 20 | Pipeline is connected, path-specific outputs saved |
+| M6 | Week 24 | Dashboard is live at a public URL |
