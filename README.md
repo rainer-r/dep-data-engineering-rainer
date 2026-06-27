@@ -1,166 +1,38 @@
-# DEP Data Engineering Starter Kit
+# TaxTracePH: Connecting the Dots Between Citizen Tax Compliance and Regional Infrastructure Development
 
-Welcome to the **Data Engineering Pilipinas Open Track**. This folder is your project scaffold — everything you need to build one real, deployable data project over 24 weeks.
+## The Core Problem
 
----
+Every single day, ordinary Filipinos comply with their fiscal duties. Taxes are automatically deducted from monthly paychecks and tacked onto everyday purchases like food, gas, and electricity through VAT. Citizens contribute their hard-earned money to the national treasury under the fundamental promise that it will return to their communities in the form of better public roads, functioning hospitals, and reliable public services.
 
-## Before You Start
+Yet, a massive disconnect persists. While the Bureau of Internal Revenue aggressively enforces collection milestones, average citizens look at their home provinces and still navigate broken infrastructure, persistent flooding, and neglected public utilities. This issue stems directly from institutional malpractice and systemic data fragmentation. Currently, the government records documenting what citizens pay and the data detailing how national agencies distribute funds are intentionally or unintentionally kept in completely isolated, unindexed files.
 
-You need:
-- A free [GitHub account](https://github.com)
-- [Python 3.10+](https://www.python.org/downloads/) installed on your machine
-- [Git](https://git-scm.com/) installed and configured
+Because these data sources do not talk to each other, the average Filipino has no way of seeing a definitive receipt. It is impossible to verify if the heavy taxes collected from a specific region are actually returning to improve that local economy, or if the funds are leaking into bureaucratic black holes along the way. This project engineers an automated data pipeline that bridges these disparate datasets, creating a unified platform that tracks the life cycle of tax money to show exactly how much a region contributes versus how much it actually receives.
 
----
+> The Extensible Challenge
 
-## Step 1 — Copy This Starter Kit to Your GitHub
+The technical challenge of tracking tax money getting lost in translation extends far beyond the Philippines, serving as a shared roadblock across developing Southeast Asian nations like Indonesia and Malaysia. However, comparing how effectively these neighboring countries utilize citizen contributions is currently blocked by severe data infrastructure limitations.
 
-You have two options:
-
-**Option A — Use This Repo as a Template (recommended)**
-
-1. Go to the top of this GitHub repo and click **Use this template → Create a new repository**
-2. Name it something like `dep-data-engineering-<your-name>`
-3. Set it to **Public** (required for milestone submission)
-4. Click **Create repository**
-
-**Option B — Fork and Copy Manually**
-
-1. Fork this repo to your account
-2. In your fork, delete everything outside of `cohorts/starter-kit/` and restructure the contents as your root
-
-> Your repo must be **public** at all times so reviewers and the auto-checker can access it.
+Building a transnational framework requires solving complex data engineering bottlenecks. The pipeline must harmonize entirely different taxpayer taxonomies, dynamically adjust for multi-currency inflation histories, and clean up conflicting regional granularities, such as aligning Philippine provinces with Malaysian states. Overcoming these technical hurdles is the only way to establish a standardized, data-driven metric for regional fiscal health and governance efficiency across the region.
 
 ---
 
-## Step 2 — Clone Your Repo Locally
+## Target Audience
+The primary audience for this platform consists of civil society organizations, independent economic watchdogs, and civic-minded journalists who need hard, data-driven evidence to monitor government spending and advocate for regional equity. Secondary users include local government officials looking to defend their region’s fair share of the national budget, and honest academic researchers analyzing public finance. Ultimately, the system is designed to serve the general Filipino public, transforming complex public finance spreadsheets into accessible, visual insights that allow ordinary citizens to see exactly how their tax contributions match local development.
 
-```bash
-git clone https://github.com/<your-username>/<your-repo-name>.git
-cd <your-repo-name>
-```
+## Data Source
 
----
+To construct a reliable fiscal map, the data pipeline consolidates public datasets from the following direct regional repositories:
 
-## Step 3 — Understand the Folder Structure
+- PH's Tax Revenue Records: 
+    - https://www.bir.gov.ph/collection-statistics
+- PH's National Allocations & Spending:
+    - https://www.bir.gov.ph/collection-statistics
+- For comparative transnational fiscal data:
+    - https://data.go.id/
+    - https://data.gov.my/
 
-```
-your-repo/
-├── data/
-│   ├── raw/            ← Phase 2: raw data files go here
-│   └── processed/      ← Phase 3: cleaned/transformed data goes here
-├── scripts/
-│   ├── ingest.py       ← Phase 2: your data ingestion script
-│   └── transform.py    ← Phase 3: your data transformation script
-├── notebooks/          ← Phase 4 & 5: your analysis notebooks
-├── output/
-│   └── figures/        ← Phase 4: saved charts and visuals
-├── dashboard/
-│   └── index.html      ← Phase 6: your deployed dashboard or report
-├── requirements.txt    ← list all your Python dependencies here
-└── README.md           ← this file — update it as your project grows
-```
+> Fallback Data Sources:
+- https://www.dbm.gov.ph/index.php/budget
+- https://data.bettergov.ph/datasets/20
 
-You will fill in each folder phase by phase. Do not try to fill everything at once.
 
----
-
-## Step 4 — Set Up Your Python Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate        # Mac/Linux
-venv\Scripts\activate           # Windows
-
-pip install -r requirements.txt
-```
-
-Add any new packages you install to `requirements.txt`:
-
-```bash
-pip freeze > requirements.txt
-```
-
----
-
-## Step 5 — Work Through the Phases
-
-| Phase | Weeks | What you build |
-|-------|-------|----------------|
-| 1 — Foundations | 1–4 | Define your problem, find your data source, set up this repo |
-| 2 — Data Collection | 5–6 | Write `scripts/ingest.py`, pull raw data into `data/raw/` |
-| 3 — Data Processing | 7–12 | Write `scripts/transform.py`, clean and model data in `data/processed/` |
-| 4 — Analysis & Insights | 13–16 | Explore data in `notebooks/`, produce charts in `output/figures/` |
-| 5 — Predictive / Alt Track | 17–20 | Build a model (Path A) or advanced analysis (Path B) |
-| 6 — Deployment | 21–24 | Deploy `dashboard/index.html` via GitHub Pages, prepare your demo |
-
----
-
-## Step 6 — Submit at Each Milestone
-
-At the end of each phase, submit a milestone issue on the **curriculum repo**:
-
-1. Go to [github.com/dataengineeringpilipinas/dep-data-engineering-open-track/issues/new/choose](https://github.com/dataengineeringpilipinas/dep-data-engineering-open-track/issues/new/choose)
-2. Select the template matching your milestone (e.g. **Milestone 1 — Foundations Complete**)
-3. Fill in your name, cohort, repo URL, and **commit hash**
-
-**How to get your commit hash:**
-
-```bash
-git log --oneline -1
-# Example output: a1b2c3d feat: add ingestion script
-# Your commit hash is: a1b2c3d (or the full 40-character version)
-```
-
-Copy the full hash:
-
-```bash
-git log -1 --format="%H"
-```
-
-After you submit, the auto-checker will run and post a comment on your issue within a few minutes. Fix anything flagged before waiting for a reviewer.
-
----
-
-## Step 7 — Enable GitHub Pages (Phase 6)
-
-To deploy your dashboard:
-
-1. In your repo, go to **Settings → Pages**
-2. Under **Source**, select **Deploy from a branch**
-3. Choose `main` branch and `/dashboard` folder
-4. Click **Save** — your live URL will appear as `https://<your-username>.github.io/<your-repo-name>/`
-
----
-
-## Updating Your README
-
-Replace this file with your own project README as you progress. At minimum, your README should include:
-
-- What problem you are solving
-- Where your data comes from
-- How to run your scripts (`ingest.py`, `transform.py`)
-- Your key findings (Phase 4+)
-- Your live dashboard URL (Phase 6)
-
----
-
-## Getting Help
-
-- Check the weekly READMEs in the curriculum repo for topic guides and resources
-- Post in the community Discord if you are stuck after 2 hours on a problem
-- Review `docs/FAQ.md` in the curriculum repo for common questions
-
----
-
-## Milestone Quick Reference
-
-| Milestone | When | What reviewers check |
-|-----------|------|---------------------|
-| M0 | Week 1 | Repo is public, README describes your project |
-| M1 | Week 3–4 | Folder structure exists, requirements.txt present |
-| M2 | Week 6 | `ingest.py` runs, `data/raw/` has real data |
-| M3 | Week 12 | `transform.py` runs, `data/processed/` has output |
-| M4 | Week 16 | Notebook exists and runs end-to-end |
-| M5 | Week 20 | Pipeline is connected, path-specific outputs saved |
-| M6 | Week 24 | Dashboard is live at a public URL |
