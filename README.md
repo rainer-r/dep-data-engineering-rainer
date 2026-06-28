@@ -1,4 +1,4 @@
-# TaxTracePH: Connecting the Dots Between Citizen Tax Compliance and Regional Infrastructure Development
+# TaxTracePH
 
 ## The Core Problem
 
