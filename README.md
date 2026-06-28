@@ -2,22 +2,29 @@
 
 ## The Core Problem
 
-Every single day, ordinary Filipinos comply with their fiscal duties. Taxes are automatically deducted from monthly paychecks and tacked onto everyday purchases like food, gas, and electricity through VAT. Citizens contribute their hard-earned money to the national treasury under the fundamental promise that it will return to their communities in the form of better public roads, functioning hospitals, and reliable public services.
+We pay taxes every single day. It gets taken out of our paychecks, and it's added to everything we buy, from food and gas to electricity. We contribute our hard-earned money to the national treasury with the simple promise that it will return to our communities in the form of decent roads, working hospitals, and reliable public services.
 
-Yet, a massive disconnect persists. While the Bureau of Internal Revenue aggressively enforces collection milestones, average citizens look at their home provinces and still navigate broken infrastructure, persistent flooding, and neglected public utilities. This issue stems directly from institutional malpractice and systemic data fragmentation. Currently, the government records documenting what citizens pay and the data detailing how national agencies distribute funds are intentionally or unintentionally kept in completely isolated, unindexed files.
+But if you look around, that promise feels broken. We see tax collection offices boasting about hitting their targets, yet we still navigate potholes, deal with flooded streets, and struggle with neglected public facilities. 
 
-Because these data sources do not talk to each other, the average Filipino has no way of seeing a definitive receipt. It is impossible to verify if the heavy taxes collected from a specific region are actually returning to improve that local economy, or if the funds are leaking into bureaucratic black holes along the way. This project engineers an automated data pipeline that bridges these disparate datasets, creating a unified platform that tracks the life cycle of tax money to show exactly how much a region contributes versus how much it actually receives.
+The real problem is that the public has no way to trace the money. The documents showing what citizens pay and the files showing how the government spends are kept completely separate, whether by design or just out of sheer disorganization. Because these pieces of information never meet, we can't see the receipts. We have no way of knowing if the taxes collected from our hometowns are actually spent to improve them, or if the funds are simply lost in bureaucratic black holes.
+
+This project is an effort to change that. I am bringing these scattered pieces of data together into one clear picture, so we can finally track the life cycle of tax money and compare what a region contributes to what it actually gets back.
 
 > The Extensible Challenge
 
-The technical challenge of tracking tax money getting lost in translation extends far beyond the Philippines, serving as a shared roadblock across developing Southeast Asian nations like Indonesia and Malaysia. However, comparing how effectively these neighboring countries utilize citizen contributions is currently blocked by severe data infrastructure limitations.
+This frustration isn't unique to the Philippines. People in neighboring countries like Indonesia and Malaysia face the exact same lack of transparency. 
 
-Building a transnational framework requires solving complex data engineering bottlenecks. The pipeline must harmonize entirely different taxpayer taxonomies, dynamically adjust for multi-currency inflation histories, and clean up conflicting regional granularities, such as aligning Philippine provinces with Malaysian states. Overcoming these technical hurdles is the only way to establish a standardized, data-driven metric for regional fiscal health and governance efficiency across the region.
+But trying to compare how well different governments use their citizens' money is a massive headache. Every country tracks its finances differently, uses its own currency, and labels its regions and taxpayer categories in ways that don't match. To make a fair comparison, I have to do the messy, behind-the-scenes work of translating, aligning, and cleaning up these incompatible records so everyone can look at them side-by-side.
+
+Initially, this project started by looking for any publicly available government datasets I could actually get my hands on.
 
 ---
 
 ## Target Audience
-The primary audience for this platform consists of civil society organizations, independent economic watchdogs, and civic-minded journalists who need hard, data-driven evidence to monitor government spending and advocate for regional equity. Secondary users include local government officials looking to defend their region’s fair share of the national budget, and honest academic researchers analyzing public finance. Ultimately, the system is designed to serve the general Filipino public, transforming complex public finance spreadsheets into accessible, visual insights that allow ordinary citizens to see exactly how their tax contributions match local development.
+
+This project is built for citizens who want to better understand how local tax contributions connect to public projects in their own neighborhoods. 
+
+It is also designed for local government officials, community organizers, and researchers who want to use clear, data-backed insights to support regional planning and budgeting. Finally, it serves as an open resource for journalists and policy watchdogs looking for objective data to help tell the story of public spending and development.
 
 ## Data Source
 
