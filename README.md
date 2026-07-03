@@ -8,7 +8,7 @@ But if you look around, that promise feels broken. We see tax collection offices
 
 The real problem is that the public has no way to trace the money. The documents showing what citizens pay and the files showing how the government spends are kept completely separate, whether by design or just out of sheer disorganization. Because these pieces of information never meet, we can't see the receipts. We have no way of knowing if the taxes collected from our hometowns are actually spent to improve them, or if the funds are simply lost in bureaucratic black holes.
 
-This project is an effort to change that. I am bringing these scattered pieces of data together into one clear picture, so we can finally track the life cycle of tax money and compare what a region contributes to what it actually gets back. Specifically, this project aims to answer: Specifically, this project aims to answer: **Can a consolidated, open data pipeline reveal whether local taxes collected from Philippine regions are being proportionally spent to develop their local communities?**
+This project is an effort to change that. I am bringing these scattered pieces of data together into one clear picture, so we can finally track the life cycle of tax money and compare what a region contributes to what it actually gets back. Specifically, this project aims to answer: **Can a consolidated, open data pipeline reveal whether local taxes collected from Philippine regions are being proportionally spent to develop their local communities?**
 
 > The Extensible Challenge
 
