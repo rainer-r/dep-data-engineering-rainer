@@ -8,4 +8,11 @@ AGENTS.md
 DESIGN.md
 CONTEXT.md
 
-.venv
+.venv/
+.agents/
+.clinerules/
+memory-bank/
+
+logs/
+
+archive/
