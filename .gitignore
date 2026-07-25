@@ -10,9 +10,11 @@ CONTEXT.md
 
 .venv/
 .agents/
+.cache/
 .clinerules/
 memory-bank/
 
 logs/
+docs/
 
 archive/
