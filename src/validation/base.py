@@ -43,6 +43,29 @@ def setup_logging(name: str = "validate") -> logging.Logger:
     return logger
 
 
+def _jsonable(value: Any) -> Any:
+    """Recursively make a result payload JSON-serialisable.
+
+    Sets sort to lists; bytes decode to text with replacement; ``Path``
+    becomes its string form; datetimes use ISO 8601. Applied to ``actual`` and
+    ``expected`` so the always-written report document never trips over a
+    payload the checks record.
+    """
+    if isinstance(value, set):
+        return sorted(_jsonable(v) for v in value)
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {k: _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    return value
+
+
 @dataclass
 class ValidationResult:
     """One executable assertion with its outcome (never raises)."""
@@ -60,8 +83,8 @@ class ValidationResult:
             "severity": self.severity,
             "passed": self.passed,
             "detail": self.detail,
-            "actual": self.actual if not isinstance(self.actual, set) else sorted(self.actual),
-            "expected": self.expected if not isinstance(self.expected, set) else sorted(self.expected),
+            "actual": _jsonable(self.actual),
+            "expected": _jsonable(self.expected),
         }
 
 
