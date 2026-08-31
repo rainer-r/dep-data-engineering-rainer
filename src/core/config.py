@@ -13,6 +13,10 @@ CONFIG = {
     "SAAODB_RAW_DIR": Path("data/raw/saaodb"),
     "LOG_FILE": Path("logs/ingestion.log"),
     "MANIFEST_FILE": Path("data/raw/manifest.json"),
+    # Validation layer (see src/validation/ + scripts/validate.py)
+    "VALIDATION_REPORT_FILE": Path("data/validation_report.json"),
+    "SCHEMAS_DIR": Path("data/reference/schemas"),
+    "DICTIONARY_DIR": Path("data/data-dictionary"),
     "TIMEOUT": 15,
     "MAX_RETRIES": 5,
     "CHUNK_SIZE": 8192,
