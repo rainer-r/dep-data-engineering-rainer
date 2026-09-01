@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional
 import openpyxl
 
 from src.core.config import CONFIG as cfg
+from src.validation.orchestrator import run_validation
 
 
 def setup_root_logger(quiet: bool = False) -> logging.Logger:
@@ -132,23 +133,9 @@ def run_extractor(name: str, extractor, logger: logging.Logger) -> dict:
     return result
 
 
-def validate_raw_data(logger: logging.Logger) -> dict:
-    """Validate that raw data directories have expected content.
-
-    Checks:
-    1. File counts in GAA and Tax directories
-    2. Manifest existence and entry count
-    3. Manifest-file consistency (every manifest path exists on disk)
-    4. Parquet magic-byte integrity check (catches truncated files)
-
-    Returns
-    -------
-    dict
-        Validation results: gaa_files, tax_files, manifest_exists,
-        manifest_entries, manifest_orphans (paths in manifest but
-        missing from disk), parquet_errors (corrupt files).
-    """
-    results: dict = {
+def _default_validation() -> dict:
+    """The minimal legacy summary shape the runner's ``print_summary`` reads."""
+    return {
         "gaa_files": 0,
         "tax_files": 0,
         "saaodb_files": 0,
@@ -162,111 +149,166 @@ def validate_raw_data(logger: logging.Logger) -> dict:
         "parquet_errors": [],
     }
 
-    # ---- directory file counts ----
-    gaa_dir: Path = cfg["GAA_RAW_DIR"]
-    if gaa_dir.exists():
-        results["gaa_files"] = len(
-            [f for f in gaa_dir.rglob("*") if f.is_file() and not f.name.startswith(".git")]
-        )
-        logger.info("GAA raw directory: %d files in %s", results["gaa_files"], gaa_dir)
 
-    tax_dir: Path = cfg["BIR_RAW_DIR"]
-    if tax_dir.exists():
-        results["tax_files"] = len(
-            [f for f in tax_dir.rglob("*") if f.is_file() and not f.name.startswith(".git")]
-        )
-        logger.info("Tax raw directory: %d files in %s", results["tax_files"], tax_dir)
+def _count_source_files(raw_dir: Path, logger: logging.Logger, label: str) -> int:
+    """Count files under ``raw_dir`` with the legacy ``rglob`` semantics
+    (names starting with ``.git`` are excluded)."""
+    if not raw_dir.exists():
+        return 0
+    count = len(
+        [f for f in raw_dir.rglob("*") if f.is_file() and not f.name.startswith(".git")]
+    )
+    logger.info("%s raw directory: %d files in %s", label, count, raw_dir)
+    return count
 
-    saaodb_dir: Path = cfg["SAAODB_RAW_DIR"]
-    if saaodb_dir.exists():
-        results["saaodb_files"] = len(
-            [f for f in saaodb_dir.rglob("*") if f.is_file() and not f.name.startswith(".git")]
-        )
-        logger.info("SAAODB raw directory: %d files in %s", results["saaodb_files"], saaodb_dir)
 
-        # ---- SAAODB file integrity verification ----
-        # The extractor primarily downloads .htm and .pdf files.
-        # If any .xlsx files are present, verify them (expected sheets: SUMMARY, AGENCY, SUCs).
-        # Missing .xlsx files is NOT an error — the extractor prioritises PDF/HTM.
-        xlsx_files = [f for f in saaodb_dir.rglob("*.xlsx") if f.is_file()]
-
-        for xlsx_file in xlsx_files:
-            results["saaodb_xlsx_total"] += 1
-            try:
-                wb = openpyxl.load_workbook(xlsx_file, read_only=True)
-                wb.close()
-                results["saaodb_xlsx_valid"] += 1
-            except Exception as e:
-                results["saaodb_xlsx_corrupt"] += 1
-                err_entry = {
-                    "file": str(xlsx_file.relative_to(cfg["RAW_DATA_DIR"])),
-                    "error": "corrupt",
-                    "detail": str(e),
-                }
-                results["saaodb_xlsx_errors"].append(err_entry)
-                logger.error("SAAODB workbook %s is corrupt: %s", xlsx_file.name, e)
-
-        if results["saaodb_xlsx_total"] > 0:
-            logger.info(
-                "SAAODB xlsx verification: %d total, %d valid, %d corrupt",
-                results["saaodb_xlsx_total"],
-                results["saaodb_xlsx_valid"],
-                results["saaodb_xlsx_corrupt"],
-            )
-        else:
-            logger.info("SAAODB xlsx verification: no .xlsx files present")
-
-    # ---- manifest checks ----
+def _read_manifest_guarded(logger: logging.Logger) -> tuple[bool, dict]:
+    """Read the manifest file as JSON; never raises (returns ``(False, {})``)."""
     manifest_file: Path = cfg["MANIFEST_FILE"]
-    manifest: dict = {}
-
-    if manifest_file.exists():
-        try:
-            with open(manifest_file, "r") as f:
-                manifest = json.load(f)
-            results["manifest_exists"] = True
-            results["manifest_entries"] = len(manifest)
-            logger.info(
-                "Manifest: %d entries in %s", results["manifest_entries"], manifest_file
-            )
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning("Manifest exists but could not be read: %s", e)
-    else:
+    if not manifest_file.exists():
         logger.warning("Manifest not found at %s", manifest_file)
+        return False, {}
+    try:
+        with open(manifest_file, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+        return (True, manifest) if isinstance(manifest, dict) else (False, {})
+    except (json.JSONDecodeError, UnicodeDecodeError, OSError, TypeError) as e:
+        logger.warning("Manifest exists but could not be read: %s", e)
+        return False, {}
 
-    # ---- manifest-file consistency ----
-    for rel_path in manifest:
-        disk_path = cfg["RAW_DATA_DIR"] / rel_path
-        if not disk_path.exists():
-            results["manifest_orphans"].append(rel_path)
-            logger.warning(
-                "Manifest entry missing from disk: %s (path: %s)", rel_path, disk_path
+
+def _derive_parquet_errors(logger: logging.Logger) -> list:
+    """Parquet paths with failed ``global.checksum.*.parquet`` checks, read back
+    from the always-written validation report (settled legacy-parity rule).
+    Never raises - an unreadable report simply means ``[]``."""
+    report_file: Path = Path(cfg["VALIDATION_REPORT_FILE"])
+    try:
+        with open(report_file, "r", encoding="utf-8") as f:
+            doc = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        logger.warning("Validation report not readable at %s: %s", report_file, e)
+        return []
+    if not isinstance(doc, dict):
+        return []
+    reports_block = doc.get("reports")
+    if not isinstance(reports_block, dict):
+        return []
+    global_block = reports_block.get("global")
+    if not isinstance(global_block, dict):
+        return []
+    results_list = global_block.get("results")
+    if not isinstance(results_list, list):
+        return []
+    errors: list = []
+    prefix = "global.checksum."
+    for result in results_list:
+        if not isinstance(result, dict):
+            continue
+        check = result.get("check", "")
+        if (
+            isinstance(check, str)
+            and check.startswith(prefix)
+            and check.endswith(".parquet")
+            and not result.get("passed", False)
+        ):
+            raw_path = cfg["RAW_DATA_DIR"] / check[len(prefix):]
+            # Legacy magic-byte scan walked only files that exist on disk —
+            # a registered file missing from disk is an orphan, not a parquet
+            # error.
+            if raw_path.is_file():
+                errors.append(str(raw_path))
+    return errors
+
+
+def validate_raw_data(logger: logging.Logger) -> dict:
+    """Thin delegate to the validation-layer orchestrator.
+
+    Runs ``run_validation`` offline (``skip_live=True``, never raising) and
+    maps its outcome back onto the exact legacy summary shape that
+    ``scripts/ingest.py``'s ``print_summary`` reads. The legacy counts are
+    derived from the new reports plus cheap scans; any unexpected exception
+    returns the minimal default dict.
+    """
+    results: dict = _default_validation()
+
+    # ---- delegate to the validation-layer orchestrator (offline, quiet) ----
+    try:
+        run_validation(
+            selected={"gaa", "tax", "saaodb"},
+            strict=False,
+            skip_live=True,
+            logger=logger,
+            print_summary=False,
+        )
+
+        # ---- file counts (legacy rglob semantics, namespaced per source) ----
+        results["gaa_files"] = _count_source_files(cfg["GAA_RAW_DIR"], logger, "GAA")
+        results["tax_files"] = _count_source_files(cfg["BIR_RAW_DIR"], logger, "Tax")
+        results["saaodb_files"] = _count_source_files(cfg["SAAODB_RAW_DIR"], logger, "SAAODB")
+
+        # ---- manifest existence + entry count (cheap guarded read) ----
+        manifest_exists, manifest = _read_manifest_guarded(logger)
+        results["manifest_exists"] = manifest_exists
+        results["manifest_entries"] = len(manifest)
+        if manifest_exists:
+            logger.info(
+                "Manifest: %d entries in %s", len(manifest), cfg["MANIFEST_FILE"]
             )
 
-    if not results["manifest_orphans"] and manifest:
-        logger.info("Manifest-file consistency: all %d entries verified on disk", len(manifest))
+        # ---- manifest-file consistency (orphans) ----
+        for rel_path in manifest:
+            disk_path = cfg["RAW_DATA_DIR"] / rel_path
+            if not disk_path.exists():
+                results["manifest_orphans"].append(rel_path)
+                logger.warning(
+                    "Manifest entry missing from disk: %s (path: %s)",
+                    rel_path,
+                    disk_path,
+                )
+        if not results["manifest_orphans"] and manifest:
+            logger.info(
+                "Manifest-file consistency: all %d entries verified on disk",
+                len(manifest),
+            )
 
-    # ---- Parquet magic-byte check ----
-    raw_dir: Path = cfg["RAW_DATA_DIR"]
-    if raw_dir.exists():
-        for parquet_file in raw_dir.rglob("*.parquet"):
-            if parquet_file.is_file():
+        # ---- SAAODB xlsx integrity (kept as the legacy openpyxl scan) ----
+        saaodb_dir: Path = cfg["SAAODB_RAW_DIR"]
+        if saaodb_dir.exists():
+            xlsx_files = [f for f in saaodb_dir.rglob("*.xlsx") if f.is_file()]
+            for xlsx_file in xlsx_files:
+                results["saaodb_xlsx_total"] += 1
                 try:
-                    with open(parquet_file, "rb") as f:
-                        magic = f.read(4)
-                    if magic != b"PAR1":
-                        results["parquet_errors"].append(str(parquet_file))
-                        logger.warning("Corrupt Parquet header (missing PAR1 magic): %s", parquet_file)
-                except IOError as e:
-                    results["parquet_errors"].append(str(parquet_file))
-                    logger.warning("Cannot read Parquet file %s: %s", parquet_file, e)
+                    wb = openpyxl.load_workbook(xlsx_file, read_only=True)
+                    wb.close()
+                    results["saaodb_xlsx_valid"] += 1
+                except Exception as e:
+                    results["saaodb_xlsx_corrupt"] += 1
+                    err_entry = {
+                        "file": str(xlsx_file.relative_to(cfg["RAW_DATA_DIR"])),
+                        "error": "corrupt",
+                        "detail": str(e),
+                    }
+                    results["saaodb_xlsx_errors"].append(err_entry)
+                    logger.error(
+                        "SAAODB workbook %s is corrupt: %s", xlsx_file.name, e
+                    )
+            if results["saaodb_xlsx_total"] > 0:
+                logger.info(
+                    "SAAODB xlsx verification: %d total, %d valid, %d corrupt",
+                    results["saaodb_xlsx_total"],
+                    results["saaodb_xlsx_valid"],
+                    results["saaodb_xlsx_corrupt"],
+                )
+            else:
+                logger.info("SAAODB xlsx verification: no .xlsx files present")
 
-        if not results["parquet_errors"]:
-            # Only log if we actually checked some files
-            parquet_count = len(list(raw_dir.rglob("*.parquet")))
-            if parquet_count > 0:
-                logger.info("Parquet integrity: %d files passed magic-byte check", parquet_count)
-
+        # ---- parquet errors (from global.checksum.* failures on *.parquet) ----
+        results["parquet_errors"] = _derive_parquet_errors(logger)
+    except Exception as exc:  # noqa: BLE001 - the shim never raises
+        logger.error(
+            "Validation shim failed; returning default validation dict: %s", exc
+        )
+        return _default_validation()
     return results
 
 
