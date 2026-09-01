@@ -1,7 +1,9 @@
 """GAA validator tests — mini parquet fixtures exercise pass and must-fail paths."""
 
+import json
+
 from src.validation.ph_gaa import GAAValidator
-from tests.conftest import SCHEMAS_DIR, make_gaa_tree
+from tests.conftest import REPO_ROOT, SCHEMAS_DIR, make_gaa_tree
 
 
 def test_mini_parquet_layout_and_fail_paths(gaa_validator, by_id):
@@ -48,3 +50,17 @@ def test_known_negative_anomaly_literal(tmp_path, by_id):
     ids = by_id(v.validate())
     assert ids["gaa.negative_amounts"][0].passed is False
     assert ids["gaa.negative_amounts"][0].actual == 2
+
+
+def test_size_literal_matches_committed_manifest():
+    # Known-good literal written out (anti-tautology): the expected-schema
+    # artifact and the committed manifest must agree on the parquet size.
+    # Regression guard for the 2026-09-01 transposition fix (79770700 -> 79707700).
+    EXPECTED_GAA_PARQUET_SIZE_BYTES = 79707700
+    schema = json.loads((SCHEMAS_DIR / "gaa.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (REPO_ROOT / "data/raw/manifest.json").read_text(encoding="utf-8")
+    )
+    assert schema["coverage"]["size_bytes"] == EXPECTED_GAA_PARQUET_SIZE_BYTES
+    assert schema["files"][0]["size_bytes"] == EXPECTED_GAA_PARQUET_SIZE_BYTES
+    assert manifest["gaa/gaa.parquet"]["size_bytes"] == EXPECTED_GAA_PARQUET_SIZE_BYTES
