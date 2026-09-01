@@ -182,6 +182,7 @@ def run_validation(
     skip_live: bool = False,
     logger: Optional[logging.Logger] = None,
     report_file: Optional[Path] = None,
+    print_summary: bool = True,
 ) -> int:
     """Run the global validator plus the selected sources; return the exit code.
 
@@ -190,6 +191,10 @@ def run_validation(
     ``data/validation_report.json``). A validator that raises is caught,
     logged, and recorded in that source's report ``errors`` — the run
     continues, still exits 1, and still writes the report.
+
+    ``print_summary`` (default ``True``) switches the compact console table
+    on/off. The CLI passes ``False`` under ``--json`` so stdout carries only
+    the report document (which the CLI prints from the always-written file).
     """
     log = logger if logger is not None else _logger
     keys = _normalise_selected(selected)
@@ -216,5 +221,6 @@ def run_validation(
         _build_document(started_at, keys, strict, exit_code, reports),
         report_path,
     )
-    _print_summary(reports, report_path, exit_code)
+    if print_summary:
+        _print_summary(reports, report_path, exit_code)
     return exit_code
