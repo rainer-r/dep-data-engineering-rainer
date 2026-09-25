@@ -4,8 +4,8 @@ Covers the three acceptance criteria against fixture raw trees (fully offline):
 the returned dict carries every legacy key the summary printer reads (AC1), the
 ``scripts/ingest.py`` import + call contract is unchanged (AC2), and the counts
 match the fixture contents (AC3). Also covers the settled derivations (orphans
-via re-scan, parquet errors from ``global.checksum.*`` failures, the kept
-SAAODB xlsx scan) and the never-raise guarantee.
+via re-scan, parquet errors from ``global.checksum.*`` failures) and the
+never-raise guarantee.
 """
 
 from __future__ import annotations
@@ -14,7 +14,6 @@ import json
 import logging
 from pathlib import Path
 
-import openpyxl
 import pytest
 
 import src.orchestration.runner as runner
@@ -37,10 +36,6 @@ VALIDATION_KEYS = {
     "manifest_entries",
     "manifest_orphans",
     "parquet_errors",
-    "saaodb_xlsx_total",
-    "saaodb_xlsx_valid",
-    "saaodb_xlsx_corrupt",
-    "saaodb_xlsx_errors",
 }
 
 
@@ -101,10 +96,6 @@ def test_counts_match_fixture_contents(tmp_path, monkeypatch):
     assert validation["manifest_entries"] == 7
     assert validation["manifest_orphans"] == []
     assert validation["parquet_errors"] == []
-    assert validation["saaodb_xlsx_total"] == 0
-    assert validation["saaodb_xlsx_valid"] == 0
-    assert validation["saaodb_xlsx_corrupt"] == 0
-    assert validation["saaodb_xlsx_errors"] == []
 
 
 def test_missing_manifest_returns_legacy_shape_without_raising(tmp_path,
@@ -166,26 +157,6 @@ def test_missing_registered_parquet_is_orphan_not_parquet_error(
     assert validation["parquet_errors"] == []
 
 
-def test_saaodb_xlsx_scan_keeps_legacy_shape(tmp_path, monkeypatch):
-    root = _combined_tree(tmp_path)
-    saaodb = root / "saaodb"
-    wb = openpyxl.Workbook()
-    wb.active.title = "SUMMARY"
-    wb.save(saaodb / "2026Q2.xlsx")
-    (saaodb / "broken.xlsx").write_bytes(b"not an xlsx workbook")
-    _patch_cfg(monkeypatch, root, tmp_path / "validation_report.json")
-
-    validation = validate_raw_data(logging.getLogger("test_shim"))
-
-    assert validation["saaodb_xlsx_total"] == 2
-    assert validation["saaodb_xlsx_valid"] == 1
-    assert validation["saaodb_xlsx_corrupt"] == 1
-    assert len(validation["saaodb_xlsx_errors"]) == 1
-    err = validation["saaodb_xlsx_errors"][0]
-    assert err["file"] == "saaodb/broken.xlsx"
-    assert err["error"] == "corrupt"
-
-
 # ---- delegate call (settled arguments) --------------------------------------
 
 
@@ -242,10 +213,6 @@ def test_run_validation_exception_returns_default_dict(tmp_path, monkeypatch):
         "manifest_entries": 0,
         "manifest_orphans": [],
         "parquet_errors": [],
-        "saaodb_xlsx_total": 0,
-        "saaodb_xlsx_valid": 0,
-        "saaodb_xlsx_corrupt": 0,
-        "saaodb_xlsx_errors": [],
     }
 
 

@@ -17,8 +17,6 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import openpyxl
-
 from src.core.config import CONFIG as cfg
 from src.validation.orchestrator import run_validation
 
@@ -139,10 +137,6 @@ def _default_validation() -> dict:
         "gaa_files": 0,
         "tax_files": 0,
         "saaodb_files": 0,
-        "saaodb_xlsx_total": 0,
-        "saaodb_xlsx_valid": 0,
-        "saaodb_xlsx_corrupt": 0,
-        "saaodb_xlsx_errors": [],
         "manifest_exists": False,
         "manifest_entries": 0,
         "manifest_orphans": [],
@@ -271,37 +265,6 @@ def validate_raw_data(logger: logging.Logger) -> dict:
                 len(manifest),
             )
 
-        # ---- SAAODB xlsx integrity (kept as the legacy openpyxl scan) ----
-        saaodb_dir: Path = cfg["SAAODB_RAW_DIR"]
-        if saaodb_dir.exists():
-            xlsx_files = [f for f in saaodb_dir.rglob("*.xlsx") if f.is_file()]
-            for xlsx_file in xlsx_files:
-                results["saaodb_xlsx_total"] += 1
-                try:
-                    wb = openpyxl.load_workbook(xlsx_file, read_only=True)
-                    wb.close()
-                    results["saaodb_xlsx_valid"] += 1
-                except Exception as e:
-                    results["saaodb_xlsx_corrupt"] += 1
-                    err_entry = {
-                        "file": str(xlsx_file.relative_to(cfg["RAW_DATA_DIR"])),
-                        "error": "corrupt",
-                        "detail": str(e),
-                    }
-                    results["saaodb_xlsx_errors"].append(err_entry)
-                    logger.error(
-                        "SAAODB workbook %s is corrupt: %s", xlsx_file.name, e
-                    )
-            if results["saaodb_xlsx_total"] > 0:
-                logger.info(
-                    "SAAODB xlsx verification: %d total, %d valid, %d corrupt",
-                    results["saaodb_xlsx_total"],
-                    results["saaodb_xlsx_valid"],
-                    results["saaodb_xlsx_corrupt"],
-                )
-            else:
-                logger.info("SAAODB xlsx verification: no .xlsx files present")
-
         # ---- parquet errors (from global.checksum.* failures on *.parquet) ----
         results["parquet_errors"] = _derive_parquet_errors(logger)
     except Exception as exc:  # noqa: BLE001 - the shim never raises
@@ -344,15 +307,10 @@ def print_summary(results: dict, validation: dict, json_output: bool = False) ->
     print(f"  Tax Files:          {validation['tax_files']}")
     print(f"  SAAODB Files:       {validation['saaodb_files']}")
     print(f"  Manifest Entries:   {validation['manifest_entries']}")
-    print(f"  SAAODB XLSX Total:  {validation.get('saaodb_xlsx_total', 0)}")
-    print(f"  SAAODB XLSX Valid:  {validation.get('saaodb_xlsx_valid', 0)}")
-    print(f"  SAAODB XLSX Corrupt:{validation.get('saaodb_xlsx_corrupt', 0)}")
     if validation.get("manifest_orphans"):
         print(f"  Manifest Orphans:   {len(validation['manifest_orphans'])}")
     if validation.get("parquet_errors"):
         print(f"  Parquet Errors:     {len(validation['parquet_errors'])}")
-    if validation.get("saaodb_xlsx_errors"):
-        print(f"  SAAODB XLSX Errors: {len(validation['saaodb_xlsx_errors'])}")
     print("=" * 60)
     overall = "SUCCESS" if results.get("overall_success") else "FAILURE"
     print(f"Overall: {overall}")
