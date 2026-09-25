@@ -18,3 +18,5 @@ logs/
 docs/
 
 archive/
+
+data/validation_report.json

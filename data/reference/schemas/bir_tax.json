@@ -11,7 +11,7 @@
       "Monthly: CY 2016-CY 2025 (one workbook, one sheet per year)",
       "Period: January-May 2026 (workbook 'PSA-PSGC' + 'Notes')"
     ],
-    "note_unregistered_workbook": "A 4th workbook (20260716_Monthly_Collection_PSCG_JanJun2026 (D) upload.xlsx) exists on disk but is absent from the manifest. Checked as a warning, not a gate."
+    "note_unregistered_workbook": "A 4th workbook (20260716_Monthly_Collection_PSCG_JanJun2026 (D) upload.xlsx) exists on disk and in git but is absent from the manifest, so it has no recorded source URL. It is deliberately excluded from the committed inventory; the two should-tier unregistered-file warnings are expected. Whether its January-June 2026 coverage enters scope is an M3 design decision."
   },
   "files": [
     { "relative_path": "tax/20260430_Annual_Collection_PSCG_2005_2025 (website) cv.xlsx", "role": "data", "kind": "annual", "sheets": ["2005_2024", "2025"] },

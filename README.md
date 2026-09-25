@@ -126,6 +126,12 @@ source .venv/bin/activate
 uv sync
 ```
 
+`uv.lock` is the canonical dependency source. `requirements.txt` is generated from it — do not edit it by hand:
+
+```bash
+uv export --format requirements-txt --no-hashes --no-dev > requirements.txt
+```
+
 ### Ingestion (M2)
 
 The ingestion script downloads raw data from one or all of the three data sources. Every download is tracked in `data/raw/manifest.json`. Re-running the script will skip files that are already downloaded and verified.

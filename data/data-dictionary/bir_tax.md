@@ -7,7 +7,7 @@
 
 ## coverage
 
-- **note_unregistered_workbook:** A 4th workbook (20260716_Monthly_Collection_PSCG_JanJun2026 (D) upload.xlsx) exists on disk but is absent from the manifest. Checked as a warning, not a gate.
+- **note_unregistered_workbook:** A 4th workbook (20260716_Monthly_Collection_PSCG_JanJun2026 (D) upload.xlsx) exists on disk and in git but is absent from the manifest, so it has no recorded source URL. It is deliberately excluded from the committed inventory; the two should-tier unregistered-file warnings are expected. Whether its January-June 2026 coverage enters scope is an M3 design decision.
 - **registered_workbooks:** 3
 - **series:**
   - Annual: CY 2005-CY 2024 and CY 2025 (one workbook, sheets '2005_2024' and '2025')
